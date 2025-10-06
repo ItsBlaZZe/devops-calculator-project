@@ -1,0 +1,20 @@
+
+---
+
+## 🚫 **.gitignore** (también en la raíz del repo)
+
+Este archivo le dice a Git qué **no debe subir al repositorio** (cosas locales, temporales o pesadas).
+
+Pega esto **solito** dentro de `.gitignore`:
+
+```gitignore
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+dist/
+*.egg-info/
+
+# VS Code
+.vscode/
