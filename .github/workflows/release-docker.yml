@@ -3,8 +3,8 @@ name: Release - Build & Push Docker Image
 on:
   push:
     tags:
-      - 'v*.*.*'     # corre al crear tags semver (v1.2.3)
-  workflow_dispatch:   # permite lanzarlo manualmente
+      - 'v*.*.*'     # Corre al crear tags semver (v1.2.3)
+  workflow_dispatch:   # Permite lanzarlo manualmente
 
 env:
   IMAGE_NAME: devops-calculator-project
@@ -18,7 +18,7 @@ jobs:
       contents: read
       packages: write
     environment:
-      name: release    # opcional: protege secretos/aprobaciones
+      name: release    # Protege secretos/aprobaciones
 
     steps:
       - name: Checkout
@@ -40,7 +40,7 @@ jobs:
           echo "tag=${ref}" >> $GITHUB_OUTPUT
           echo "sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-      - name: Build & Push
+      - name: Build & Push Docker Image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -52,3 +52,12 @@ jobs:
             ${{ env.DOCKER_USER }}/${{ env.IMAGE_NAME }}:${{ steps.v.outputs.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Scan image for vulnerabilities (Trivy)
+        uses: aquasecurity/trivy-action@0.18.0
+        with:
+          image-ref: ${{ env.DOCKER_USER }}/${{ env.IMAGE_NAME }}:latest
+          format: 'table'
+          exit-code: '0'   # No detiene el job si encuentra vulnerabilidades, solo reporta
+          vuln-type: 'os,library'
+          severity: 'HIGH,CRITICAL'
